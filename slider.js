@@ -24,6 +24,7 @@ void function InitSlider () {
             container,
             loop = true,
             autoplay = true,
+            onSlideChange = null,
             autoplayTimeDelay = DEFAULT_TIME_DELAY,
             manualChangePerc = DEFAULT_MANUAL_CHANGE_PERC,
             animationTiming = AnimationTimingType.EASE_OUT,
@@ -42,6 +43,8 @@ void function InitSlider () {
 
             this.loop = loop
 
+            this.onSlideChange = onSlideChange
+
             this.autoplay = autoplay
             this.autoplayTimeDelay = autoplayTimeDelay
 
@@ -49,8 +52,6 @@ void function InitSlider () {
             this.motionBlurSize = motionBlurSize
 
             this.manualChangePerc = manualChangePerc
-
-            this.emitter = new EventEmitter()
 
             this._slideMoved = false
 
@@ -64,6 +65,8 @@ void function InitSlider () {
             this._InitEvents()
 
             this._stopAnimation = false
+
+            this._canChange = true
 
             this._stopAutoplay = false
             if (this.autoplay) this.Autoplay()
@@ -368,6 +371,9 @@ void function InitSlider () {
         }
 
         ChangeSlide () {
+            if (!this._canChange) return
+            this._canChange = false
+
             var arg = arguments[0]
             var isManual = true
             var callback = null
@@ -422,7 +428,7 @@ void function InitSlider () {
                     this.currentSlide = targetSlide
             }
 
-            this.emitter.emit('slideChanged', this.currentSlide)
+            this.onSlideChange && this.onSlideChange(this.currentSlide)
 
             this._AnimateSlider(targetSlide, () => {
                 if (targetSlide === this.slideCount) {
@@ -441,8 +447,17 @@ void function InitSlider () {
 
                 this._SetTransformPosition()
 
+                this._canChange = true
+
                 callback && callback(true)
             })
+        }
+
+        Next () {
+            this.ChangeSlide(true)
+        }
+        Prev () {
+            this.ChangeSlide(false)
         }
 
         Autoplay () {
