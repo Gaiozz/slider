@@ -37,6 +37,9 @@ void function InitSlider () {
             if (window.jQuery != null && container instanceof jQuery) {
                 this.container = this.container[0]
             }
+            if (typeof container == 'string') {
+                this.container = document.querySelector(container)
+            }
 
             this.slides = this.container.querySelectorAll('.g-slide')
             this.currentSlide = 0
